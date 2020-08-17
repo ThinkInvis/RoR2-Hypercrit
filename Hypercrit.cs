@@ -37,7 +37,7 @@ namespace ThinkInvisible.Hypercrit {
                 "Used in Asymptotic stack mode. Higher numbers directly multiply the number of stacks required to reach the same crit multiplier (at DecayParam 1, 1 stack : 3x and 2 stacks : 3.5x; at DecayParam 3, 3 stacks : 3x and 6 stacks : 3.5x).",
                 new AcceptableValueRange<float>(float.Epsilon,float.MaxValue)));
 
-            var cfgStackMode = cfgFile.Bind(new ConfigDefinition("Hypercrit", "StackMode"), CritStackingMode.Exponential, new ConfigDescription(
+            var cfgStackMode = cfgFile.Bind(new ConfigDefinition("Hypercrit", "StackMode"), CritStackingMode.Linear, new ConfigDescription(
                 "How total crit multiplier is calculated based on number of stacked crits. Linear: x2, x4, x6, x8, x10.... Exponential: x2, x4, x8, x16, x32.... Asymptotic: x2, x3, x3.5, x3.75, x3.825...."));
 
             IL.RoR2.HealthComponent.TakeDamage += (il) => {
