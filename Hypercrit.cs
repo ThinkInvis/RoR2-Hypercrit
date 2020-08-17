@@ -45,7 +45,7 @@ namespace ThinkInvisible.Hypercrit {
                 bool ILFound = c.TryGotoNext(MoveType.After,
                     x => x.MatchLdfld(typeof(DamageInfo).GetFieldCached("crit")),
                     x => x.OpCode == OpCodes.Brfalse_S,
-                    x => x.MatchLdloc(6));
+                    x => x.MatchLdloc(out _));
                 if(ILFound) {
                     c.Remove();
                     c.Emit(OpCodes.Ldloc_1);
