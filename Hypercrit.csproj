@@ -53,7 +53,7 @@
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="xcopy &quot;$(TargetPath)&quot; &quot;D:\Program Files (x86)\Steam\steamapps\common\Risk of Rain 2\BepInEx\plugins\$(ProjectName)&quot; /Y&#xD;&#xA;xcopy &quot;$(ProjectDir)ModMeta&quot; &quot;D:\Program Files (x86)\Steam\steamapps\common\Risk of Rain 2\BepInEx\plugins\$(ProjectName)&quot; /Y" />
+    <Exec Command="xcopy &quot;$(TargetPath)&quot; &quot;$(ProjectDir)Build\$(ProjectName)&quot; /Y&#xD;&#xA;xcopy &quot;$(ProjectDir)ModMeta&quot; &quot;$(ProjectDir)Build\$(ProjectName)&quot; /Y" />
   </Target>
 
 </Project>
