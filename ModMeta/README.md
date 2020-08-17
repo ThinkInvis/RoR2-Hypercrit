@@ -3,9 +3,9 @@
 ## Description
 Inspired by the now-deprecated CritPlus mod. This mod is slightly smaller in scope and will not directly modify any item stats.
 
-If a damage source has over 100% crit chance, this mod adds a chance for it to double-crit for 4x damage (by default). Past 200% crit chance, double-crit is guaranteed and there's a chance to triple-crit for 8x damage; etc.
+If a damage source has over 100% crit chance, this mod adds a chance for it to double-crit for 4x damage (by default). Past 200% crit chance, double-crit is guaranteed and there's a chance to triple-crit for 6x damage; etc.
 
-Also provides config options to customize this behavior: base multiplier, stack multiplier, maximum stacks, exponential (default)/linear/asymptotic stacking.
+Also provides config options to customize this behavior: base multiplier, stack multiplier, maximum stacks, exponential/linear (default)/asymptotic stacking.
 
 ## Issues/TODO
 
@@ -13,6 +13,11 @@ Also provides config options to customize this behavior: base multiplier, stack 
 - See the GitHub repo for more!
 
 ## Changelog
+
+**1.0.1**
+
+- Updated and repaired for RoR2 1.0.
+- Default stacking mode is now Linear.
 
 **1.0.0**
 
