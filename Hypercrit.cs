@@ -21,16 +21,16 @@ namespace ThinkInvisible.Hypercrit {
         public void Awake() {
             ConfigFile cfgFile = new ConfigFile(Paths.ConfigPath + "\\" + ModGuid + ".cfg", true);
 
-            var cfgCritCap = cfgFile.Bind(new ConfigDefinition("Hypercrit", "CritCap"), 50, new ConfigDescription(
-                "Maximum number of extra crit stacks to allow.",
+            var cfgCritCap = cfgFile.Bind(new ConfigDefinition("Hypercrit", "CritCap"), 1000000000, new ConfigDescription(
+                "Maximum number of extra crit stacks to allow. Reduce SHARPLY (to ~50) if using StackMode: Exponential; attacks may break at high stacks otherwise.",
                 new AcceptableValueRange<int>(1,int.MaxValue)));
             
             var cfgCritBase = cfgFile.Bind(new ConfigDefinition("Hypercrit", "CritBase"), 2f, new ConfigDescription(
                 "Damage multiplier to use for base crit. Replaces vanilla crit multiplier for purposes of dealing damage. Examples used to describe other configs will use default value (2).",
                 new AcceptableValueRange<float>(1f,float.MaxValue)));
 
-            var cfgCritMult = cfgFile.Bind(new ConfigDefinition("Hypercrit", "CritMult"), 2f, new ConfigDescription(
-                "Damage multiplier to use for all crit stacks except the first. Examples used to describe other configs will use default value (2).",
+            var cfgCritMult = cfgFile.Bind(new ConfigDefinition("Hypercrit", "CritMult"), 1f, new ConfigDescription(
+                "Damage multiplier to use for all crit stacks except the first.",
                 new AcceptableValueRange<float>(float.Epsilon,float.MaxValue)));
 
             var cfgDecayParam = cfgFile.Bind(new ConfigDefinition("Hypercrit", "DecayParam"), 1f, new ConfigDescription(
@@ -38,7 +38,7 @@ namespace ThinkInvisible.Hypercrit {
                 new AcceptableValueRange<float>(float.Epsilon,float.MaxValue)));
 
             var cfgStackMode = cfgFile.Bind(new ConfigDefinition("Hypercrit", "StackMode"), CritStackingMode.Linear, new ConfigDescription(
-                "How total crit multiplier is calculated based on number of stacked crits. Linear: x2, x4, x6, x8, x10.... Exponential: x2, x4, x8, x16, x32.... Asymptotic: x2, x3, x3.5, x3.75, x3.825...."));
+                "How total crit multiplier is calculated based on number of stacked crits. Linear (w/ CritMult 1): x2, x3, x4, x5, x6.... Exponential (w/ CritMult 2): x2, x4, x8, x16, x32.... Asymptotic (w/ CritMult 2): x2, x3, x3.5, x3.75, x3.825...."));
 
             IL.RoR2.HealthComponent.TakeDamage += (il) => {
                 ILCursor c = new ILCursor(il);
