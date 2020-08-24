@@ -1,10 +1,10 @@
 {
     "name": "Hypercrit",
-    "version_number": "1.0.1",
+    "version_number": "1.0.2",
     "website_url": "https://github.com/ThinkInvis/RoR2-Hypercrit",
     "description": "Allows crit chance past 100% to take effect and stack crit multiplier.",
     "dependencies": [
         "bbepis-BepInExPack-5.3.1",
-		"tristanmcpherson-R2API-2.5.6"
+		"tristanmcpherson-R2API-2.5.7"
     ]
 }
