@@ -50,6 +50,10 @@ namespace ThinkInvisible.Hypercrit {
         int flurryBase;
         int flurryAdd;
         bool nerfFlurry;
+        bool loopColors;
+        int colorLoopRate;
+
+        static AdditionalCritInfo lastNetworkedCritInfo = null;
 
         public void Awake() {
             ConfigFile cfgFile = new ConfigFile(Paths.ConfigPath + "\\" + ModGuid + ".cfg", true);
@@ -96,6 +100,15 @@ namespace ThinkInvisible.Hypercrit {
                 "If true, only the first crit will count towards extra Flurry damage; every additional stack will adjust total damage to account for increased projectile count."));
             nerfFlurry = cfgNerfFlurry.Value;
 
+            var cfgLoopColors = cfgFile.Bind(new ConfigDefinition("NumberColors", "Enabled"), true, new ConfigDescription(
+                "If true, crit stacks will display with progressively decreasing hue (yellow --> red --> purple...)."));
+            loopColors = cfgLoopColors.Value;
+
+            var cfgColorLoopRate = cfgFile.Bind(new ConfigDefinition("NumberColors", "ColorLoopRate"), 36, new ConfigDescription(
+                "The number of crit stacks required to loop back around to yellow color.",
+                new AcceptableValueRange<int>(1, int.MaxValue)));
+            colorLoopRate = cfgColorLoopRate.Value;
+
             IL.RoR2.HealthComponent.TakeDamage += (il) => {
                 ILCursor c = new ILCursor(il);
                 int damageInfoIndex = -1;
@@ -128,9 +141,51 @@ namespace ThinkInvisible.Hypercrit {
                     return;
                 }
             };
+            
+            if(loopColors) {
+                IL.RoR2.HealthComponent.SendDamageDealt += (il) => {
+                    var c = new ILCursor(il);
+                    c.GotoNext(MoveType.After,
+                        x => x.MatchNewobj<DamageDealtMessage>());
+                    c.Emit(OpCodes.Dup);
+                    c.Emit(OpCodes.Ldarg_0);
+                    c.EmitDelegate<Action<DamageDealtMessage, DamageReport>>((msg, report) => {
+                        TryPassHypercrit(report.damageInfo, msg);
+                    });
+                };
 
-            /*On.RoR2.DamageDealtMessage.Serialize += (orig, self, writer) => {
-            };*/
+                On.RoR2.DamageDealtMessage.Serialize += (orig, self, writer) => {
+                    orig(self, writer);
+                    AdditionalCritInfo aci;
+                    if(!critInfoAttachments.TryGetValue(self, out aci)) aci = new AdditionalCritInfo();
+                    writer.Write(aci.numCrits);
+                    writer.Write(aci.totalCritChance);
+                    writer.Write(aci.damageMult);
+                };
+                On.RoR2.DamageDealtMessage.Deserialize += (orig, self, reader) => {
+                    orig(self, reader);
+                    AdditionalCritInfo aci = new AdditionalCritInfo();
+                    aci.numCrits = reader.ReadInt32();
+                    aci.totalCritChance = reader.ReadSingle();
+                    aci.damageMult = reader.ReadSingle();
+                    critInfoAttachments.Add(self, aci);
+                    lastNetworkedCritInfo = aci;
+                };
+
+                IL.RoR2.DamageNumberManager.SpawnDamageNumber += (il) => {
+                    var c = new ILCursor(il);
+                    c.GotoNext(MoveType.After,
+                        x => x.MatchCallOrCallvirt("RoR2.DamageColor", "FindColor"));
+                    c.EmitDelegate<Func<Color, Color>>((origColor) => {
+                        if(lastNetworkedCritInfo == null) return origColor;
+                        var aci = lastNetworkedCritInfo;
+                        lastNetworkedCritInfo = null;
+                        if(aci.numCrits == 0) return origColor;
+                        float h = 1f/6f - (aci.numCrits-1f)/colorLoopRate;
+                        return Color.HSVToRGB(((h%1f)+1f)%1f, 1f, 1f);
+                    });
+                };
+            }
 
             if(multiFlurry) {
                 On.EntityStates.Huntress.HuntressWeapon.FireFlurrySeekingArrow.OnEnter += (orig, self) => {
@@ -149,11 +204,8 @@ namespace ThinkInvisible.Hypercrit {
                     c.Emit(OpCodes.Dup);
                     c.Emit(OpCodes.Ldarg_0);
                     c.EmitDelegate<Action<GenericDamageOrb, EntityStates.Huntress.HuntressWeapon.FireSeekingArrow>>((orb, self) => {
-                        if(critInfoAttachments.TryGetValue(self, out AdditionalCritInfo aci)) {
-                            critInfoAttachments.Add(orb, aci);
-                            if(nerfFlurry && aci.numCrits > 1)
-                                aci.damageMult *= (flurryBase+flurryAdd)/(flurryBase+flurryAdd*aci.numCrits);
-                        }
+                        if(TryPassHypercrit(self, orb, out AdditionalCritInfo aci) && nerfFlurry && aci.numCrits > 1)
+                            aci.damageMult *= (flurryBase+flurryAdd)/(flurryBase+flurryAdd*aci.numCrits);
                     });
                 };
 
@@ -164,8 +216,7 @@ namespace ThinkInvisible.Hypercrit {
                     c.Emit(OpCodes.Dup);
                     c.Emit(OpCodes.Ldarg_0);
                     c.EmitDelegate<Action<DamageInfo, GenericDamageOrb>>((di, orb) => {
-                        if(critInfoAttachments.TryGetValue(orb, out AdditionalCritInfo aci))
-                            critInfoAttachments.Add(di, aci);
+                        TryPassHypercrit(orb, di);
                     });
                 };
             }
@@ -174,6 +225,18 @@ namespace ThinkInvisible.Hypercrit {
         //for mod interop
         public bool TryGetHypercrit(object target, ref AdditionalCritInfo aci) {
             return critInfoAttachments.TryGetValue(target, out aci);
+        }
+
+        private bool TryPassHypercrit(object from, object to) {
+            bool retv = critInfoAttachments.TryGetValue(from, out AdditionalCritInfo aci);
+            if(retv) critInfoAttachments.Add(to, aci);
+            return retv;
+        }
+
+        private bool TryPassHypercrit(object from, object to, out AdditionalCritInfo aci) {
+            bool retv = critInfoAttachments.TryGetValue(from, out aci);
+            if(retv) critInfoAttachments.Add(to, aci);
+            return retv;
         }
 
         private AdditionalCritInfo RollHypercrit(CharacterBody body) {
