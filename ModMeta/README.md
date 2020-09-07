@@ -7,12 +7,23 @@ If a damage source has over 100% crit chance, this mod adds a chance for it to d
 
 Also provides config options to customize this behavior: base multiplier, stack multiplier, maximum stacks, exponential/linear (default)/asymptotic stacking.
 
+Has config options to modify Huntress' Flurry: base shots fired, extra shots fired per crit stack, whether to adjust total damage to only increase with the first crit stack.
+
+Has config options to modify displayed damage numbers (lower hue for each crit stack, yellow --> orange --> red --> purple...): whether to modify at all, how many crit stacks are required for 1 full loop from yellow to yellow.
+
 ## Issues/TODO
 
 - Progressively deeper hitsound on stacked crits is intended, but PlayScaledSound doesn't seem to work :(
 - See the GitHub repo for more!
 
 ## Changelog
+
+**2.0.0**
+
+- Now has an option to affect the number of shots fired by Huntress' Flurry.
+- Now has an option to affect damage number colors with progressively decreasing hue.
+- Major changes to internal structure.
+- Bumped R2API dependency to 2.5.14.
 
 **1.0.2**
 
