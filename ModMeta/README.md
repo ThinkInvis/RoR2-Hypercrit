@@ -18,6 +18,11 @@ Has config options to modify displayed damage numbers (lower hue for each crit s
 
 ## Changelog
 
+**2.0.1**
+
+- Fixed an issue causing crits on attacks which normally don't get them.
+- Fixed inconsistent crit status on most attacks.
+
 **2.0.0**
 
 - Now has an option to affect the number of shots fired by Huntress' Flurry.
