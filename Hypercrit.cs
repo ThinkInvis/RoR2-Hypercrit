@@ -111,16 +111,13 @@ namespace ThinkInvisible.Hypercrit {
             IL.RoR2.HealthComponent.TakeDamage += (il) => {
                 ILCursor c = new ILCursor(il);
                 int damageInfoIndex = -1;
-                bool ILFound = c.TryGotoNext(
+                bool ILFound = c.TryGotoNext(MoveType.After,
                     x => x.MatchLdarg(out damageInfoIndex),
                     x => x.MatchLdfld(typeof(DamageInfo).GetFieldCached("crit")),
                     x => x.MatchBrfalse(out _),
                     x => x.MatchLdloc(out _),
                     x => x.MatchLdcR4(out _));
                 if(ILFound) {
-                    c.Index += 2;
-                    c.EmitDelegate<Func<bool,bool>>((origCrit) => true);
-                    c.Index += 3;
                     c.Emit(OpCodes.Ldloc_1);
                     c.Emit(OpCodes.Ldarg, damageInfoIndex);
                     c.EmitDelegate<Func<float, CharacterBody, DamageInfo, float>>((origDmgMult, body, damageInfo)=>{
@@ -128,11 +125,11 @@ namespace ThinkInvisible.Hypercrit {
                             return origDmgMult;
                         }
                         AdditionalCritInfo aci = null;
-                        if(critInfoAttachments.TryGetValue(damageInfo, out aci)) {
-                            return aci.damageMult;
+                        if(!critInfoAttachments.TryGetValue(damageInfo, out aci)) {
+                            aci = RollHypercrit(body, true);
+                            critInfoAttachments.Add(damageInfo, aci);
                         }
-                        aci = RollHypercrit(body);
-                        critInfoAttachments.Add(damageInfo, aci);
+                        damageInfo.crit = aci.numCrits > 0;
                         return aci.damageMult;
                     });
                 } else {
@@ -238,15 +235,16 @@ namespace ThinkInvisible.Hypercrit {
             return retv;
         }
 
-        private AdditionalCritInfo RollHypercrit(CharacterBody body) {
+        private AdditionalCritInfo RollHypercrit(CharacterBody body, bool forceSingleCrit = false) {
             var aci = new AdditionalCritInfo();
             if(body) {
                 aci.totalCritChance = body.crit;
                 //Base crit chance
-                var bCrit = Mathf.Max(body.crit, 0f);
+                var bCrit = Mathf.Max(body.crit - (forceSingleCrit ? 100f : 0f), 0f);
                 //Amount of non-guaranteed crit chance (for the final crit in the stack)
                 var cCrit = bCrit % 100f;
                 aci.numCrits = Mathf.Min(Mathf.FloorToInt(bCrit/100f) + (Util.CheckRoll(cCrit, body.master) ? 1 : 0), critCap);
+                if(forceSingleCrit) aci.numCrits++;
                 if(aci.numCrits == 0) aci.damageMult = 1f;
                 else switch(stackMode) {
                     case CritStackingMode.Linear:
