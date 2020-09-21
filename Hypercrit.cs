@@ -187,9 +187,8 @@ namespace ThinkInvisible.Hypercrit {
                 On.EntityStates.Huntress.HuntressWeapon.FireFlurrySeekingArrow.OnEnter += (orig, self) => {
                     orig(self);
                     var newCrit = RollHypercrit(self.characterBody);
-                    if(nerfFlurry && newCrit.numCrits > 1) {
-                        newCrit.damageMult *= (flurryBase+flurryAdd)/(flurryBase+flurryAdd*newCrit.numCrits);
-                    }
+                    if(nerfFlurry && newCrit.numCrits > 1)
+                        newCrit.damageMult *= (flurryBase+flurryAdd)/(float)(flurryBase+flurryAdd*newCrit.numCrits);
                     critInfoAttachments.Add(self, newCrit);
 
                     self.isCrit = newCrit.numCrits > 0;
@@ -203,7 +202,7 @@ namespace ThinkInvisible.Hypercrit {
                     c.Emit(OpCodes.Dup);
                     c.Emit(OpCodes.Ldarg_0);
                     c.EmitDelegate<Action<GenericDamageOrb, EntityStates.Huntress.HuntressWeapon.FireSeekingArrow>>((orb, self) => {
-                        TryPassHypercrit(self, orb, out AdditionalCritInfo aci);
+                        TryPassHypercrit(self, orb);
                     });
                 };
 
