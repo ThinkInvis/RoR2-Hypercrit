@@ -18,6 +18,10 @@ Has config options to modify displayed damage numbers (lower hue for each crit s
 
 ## Changelog
 
+**2.0.2**
+
+- Fixed several issues with calculation of nerfed Flurry damage.
+
 **2.0.1**
 
 - Fixed an issue causing crits on attacks which normally don't get them.
