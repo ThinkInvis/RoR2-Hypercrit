@@ -203,7 +203,7 @@ namespace ThinkInvisible.Hypercrit {
                     c.Emit(OpCodes.Dup);
                     c.Emit(OpCodes.Ldarg_0);
                     c.EmitDelegate<Action<GenericDamageOrb, EntityStates.Huntress.HuntressWeapon.FireSeekingArrow>>((orb, self) => {
-                        TryPassHypercrit(self, orb, out AdditionalCritInfo aci)
+                        TryPassHypercrit(self, orb, out AdditionalCritInfo aci);
                     });
                 };
 
