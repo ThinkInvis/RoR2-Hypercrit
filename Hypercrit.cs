@@ -116,7 +116,8 @@ namespace ThinkInvisible.Hypercrit {
                     x => x.MatchLdfld(typeof(DamageInfo).GetFieldCached("crit")),
                     x => x.MatchBrfalse(out _),
                     x => x.MatchLdloc(out _),
-                    x => x.MatchLdcR4(out _));
+                    x => x.MatchLdloc(1),
+                    x => x.MatchCallOrCallvirt("RoR2.CharacterBody","get_critMultiplier"));
                 if(ILFound) {
                     c.Emit(OpCodes.Ldloc_1);
                     c.Emit(OpCodes.Ldarg, damageInfoIndex);
