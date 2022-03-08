@@ -18,6 +18,12 @@ Has config options to modify displayed damage numbers (lower hue for each crit s
 
 ## Changelog
 
+**2.0.3**
+
+- Compatibility update for Risk of Rain 2 Expansion 1 (SotV).
+- Updated R2API dependency to 4.0.11.
+- Updated BepInEx dependency to 5.4.1902.
+
 **2.0.2**
 
 - Fixed several issues with calculation of nerfed Flurry damage.

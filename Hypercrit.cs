@@ -15,7 +15,7 @@ namespace ThinkInvisible.Hypercrit {
     [BepInDependency("com.bepis.r2api")]
     [BepInPlugin(ModGuid, ModName, ModVer)]
     public class HypercritPlugin:BaseUnityPlugin {
-        public const string ModVer = "2.0.2";
+        public const string ModVer = "2.0.3";
         public const string ModName = "Hypercrit";
         public const string ModGuid = "com.ThinkInvisible.Hypercrit";
         
